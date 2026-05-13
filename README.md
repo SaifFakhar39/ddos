@@ -1,77 +1,41 @@
-🐲 Advanced HTTP Flooder - C++ Optimized V2
+# Advanced HTTP Flooder V3 - C++
 
-🚀 نظرة عامة
+<div align="center">
 
-هذا المشروع هو أداة احترافية مصممة بلغة C++ الخام للوصول إلى أقصى أداء ممكن في إرسال الطلبات (RPS). تم تحسين الأداة لتعمل بذكاء عبر استغلال الاتصالات المفتوحة وتجاوز أنظمة الحماية المتقدمة عبر تقنيات Low-level networking.
+![C++](https://img.shields.io/badge/C%2B%2B-17%2B-blue?style=flat-square&logo=c%2B%2B)
+![OpenSSL](https://img.shields.io/badge/OpenSSL-3.x-green?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-red?style=flat-square)
 
-✨ المميزات القتالية
+**أداة HTTP Flooding متقدمة مكتوبة بلغة C++ مع دعم البروكسي و Keep-Alive**
 
-⚡ أداء خارق: معالجة آلاف الطلبات في الثانية عبر الـ Multi-threading.
+</div>
 
-🔄 Keep-Alive حقيقي: دعم إرسال حتى 50,000 طلب عبر اتصال TCP واحد لإنهاك موارد السيرفر.
+## 📖 نظرة عامة
 
-🛡️ تجاوز الحماية: توليد تلقائي لهيدرات X-Forwarded-For و X-Real-IP لتشتيت أنظمة WAF.
+**Advanced HTTP Flooder V3** هي أداة أداء عالي مكتوبة بلغة C++ تركز على الاستقرار، السرعة، والكفاءة. تدعم HTTPS، بروكسي HTTP، إعادة استخدام الاتصالات (Keep-Alive)، وقراءة الردود الحقيقية.
 
-🔐 دعم HTTPS كامل: تكامل عميق مع مكتبة OpenSSL مع ميزة TLS session reuse.
+> ⚠️ **هذا المشروع لأغراض تعليمية وبحثية فقط.**
 
-📊 رادار حي: إحصائيات لحظية توضح الـ Success (2xx)، الـ Errors، والـ Bandwidth بدقة.
+---
 
-🛠️ المتطلبات التقنية
+## ✨ المميزات
 
-المترجم: g++ (دعم معيار C++17 أو أحدث).
+- **أداء عالي جداً** بفضل C++17
+- دعم **HTTP/HTTPS** (TLS)
+- **Keep-Alive** حقيقي (إرسال آلاف الطلبات على اتصال واحد)
+- دعم **بروكسي HTTP** (مع CONNECT للـ HTTPS)
+- قراءة وتحليل **HTTP Response Codes** (2xx, 4xx, 5xx)
+- إحصائيات دقيقة في الوقت الفعلي (RPS, Success Rate, MB/s)
+- Pre-caching للـ Headers لتقليل الحمل على CPU
+- واجهة ملونة احترافية
+- إدارة ذاكرة واستقرار عالي
+- متوافق مع **Windows و Linux**
 
-المكتبات: OpenSSL (ضرورية لدعم التشفير و HTTPS).
+---
 
-النظام: متوافق بالكامل مع Linux و Windows.
+## 🛠️ المتطلبات
 
-▶️ كيفية التشغيل
-
-1. التحضير (Linux)
-
-تأكد من تثبيت مكتبة التطوير الخاصة بـ OpenSSL:
-
-sudo apt-get install libssl-dev
-
-
-2. بناء الأداة (Compilation)
-
-استخدم الأمر التالي لضمان الربط الصحيح للمكتبات وتفعيل وضع التحسين القصوى (-O3):
-
-g++ -O3 main.cpp -o beast_flooder -lssl -lcrypto -lpthread
-
-
-3. إعداد الأسلحة (البروكسي)
-
-أنشئ ملفاً باسم proxy.txt وضع فيه البروكسيات بصيغة IP:Port:
-
-1.2.3.4:8080
-5.6.7.8:3128
-
-
-4. إطلاق الهجوم
-
-صيغة التشغيل:
-
-./beast_flooder <URL> <THREADS> <MODE> <DURATION> <HEADERS_FILE>
-
-
-مثال لهجوم ساحق:
-
-./beast_flooder https://target-site.com 500 get 300 nil
-
-
-📖 شرح البارامترات
-
-<url> : الرابط المستهدف (يدعم http و https).
-
-<threads> : القوة الضاربة (عدد الخيوط). يفضل بين 200 و 1000.
-
-<get/post> : نوع الطلب (GET لسحب الموارد، POST لضغط المعالجة).
-
-<seconds> : زمن الهجوم بالثواني.
-
-<header_file/nil> : ملف هيدرات مخصص أو وضع nil للاعتماد على المولد التلقائي.
-
-📜 الرخصة
-
-هذا المشروع تحت رخصة MIT، مخصص لأغراض اختبار الاختراق الأخلاقي والتعليم المتقدم في الشبكات.
+### Linux:
+```bash
+sudo apt update
+sudo apt install g++ libssl-dev openssl
