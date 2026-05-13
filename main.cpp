@@ -158,13 +158,12 @@ private:
 public:
     HTTPFlooder(const std::string& targetUrl, const std::string& requestMode, 
                 int threads, int timeLimit, const std::string& headerFile) 
-        : threadCount(threads), duration(timeLimit), gen(rd()),
-          pool(host, port, useSSL) {  // temporary initialization, will be updated below
+        : threadCount(threads), duration(timeLimit), gen(rd()), 
+          pool("1.1.1.1", "80", false) { 
         
-        parseURL(targetUrl);
-        
-        // Re-initialize pool with correct values after parseURL
-        pool = ConnectionPool(host, port, useSSL);
+        parseURL(targetUrl); 
+        pool.~ConnectionPool(); 
+        new (&pool) ConnectionPool(host, port, useSSL);
         
         mode = requestMode;
         
