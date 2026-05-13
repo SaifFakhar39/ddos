@@ -1,329 +1,96 @@
-# README.md — جاهز للنسخ
+🚀 Advanced HTTP Flooder - Optimized V2 🛡️
 
-````md
-<div align="center">
+أداة احترافية فائقة الأداء مكتوبة بلغة $C++$ مصممة لاختبار قدرة تحمل الشبكات والسيرفرات ($Stress$ $Testing$). تم تطوير الإصدار الثاني ($V2$) لكسر حواجز الأداء التقليدية عبر تقليل استهلاك الموارد ($Resource$ $Overhead$) إلى أدنى مستوياته.
 
-# ⚡ Advanced HTTP Flooder V2
-### High Performance Multi-Threaded HTTP/HTTPS Stress Testing Engine
+💎 التحليل التقني للمميزات (Technical Breakdown)
 
-<img src="https://img.shields.io/badge/C%2B%2B-17-blue?style=for-the-badge&logo=cplusplus" />
-<img src="https://img.shields.io/badge/OpenSSL-Supported-green?style=for-the-badge&logo=openssl" />
-<img src="https://img.shields.io/badge/Linux-Compatible-orange?style=for-the-badge&logo=linux" />
-<img src="https://img.shields.io/badge/Windows-Compatible-blue?style=for-the-badge&logo=windows" />
-<img src="https://img.shields.io/badge/Multi--Threaded-Optimized-red?style=for-the-badge" />
+الميزة
 
----
+الشرح التقني
 
-### 🚀 Optimized HTTP/HTTPS Connection Engine Written in Modern C++
+الفائدة
 
-مصمم لاختبارات الضغط الشبكي وتحليل الأداء والبنية التحتية عالية التحمل.
+Ultra High RPS
 
-</div>
+استخدام تقنية $Keep-Alive$ الحقيقية للبقاء داخل نفس أنبوب الـ $TCP$.
 
----
+إرسال آلاف الطلبات دون الحاجة لفتح وإغلاق الاتصال في كل مرة.
 
-# 📌 Overview
+TLS Session Reuse
 
-**Advanced HTTP Flooder V2** هو محرك اتصالات HTTP/HTTPS عالي الأداء مكتوب بلغة **C++** مع دعم كامل لـ:
+إعادة استخدام مفاتيح التشفير لجلسات $SSL/TLS$ السابقة.
 
-- Multi-threading
-- Persistent Keep-Alive Connections
-- SSL/TLS عبر OpenSSL
-- Connection Reuse
-- Real HTTP Response Validation
-- Live Statistics Monitoring
-- Optimized Socket Performance
+توفير وقت المصافحة ($Handshake$) الذي يستهلك المعالج والوقت.
 
-تم تصميم المشروع لتحقيق أعلى كفاءة ممكنة في إدارة الاتصالات وتقليل الـ overhead أثناء عمليات الاختبار الشبكي.
+Dynamic Headers
 
----
+نظام $Caching$ مسبق لرؤوس الطلبات العشوائية.
 
-# ✨ Features
+تجنب استهلاك وقت المعالج في توليد نصوص عشوائية أثناء الهجوم الفعلي.
 
-## ⚡ High Performance Networking
-- Persistent HTTP Keep-Alive
-- آلاف الطلبات على نفس الاتصال
-- TCP_NODELAY optimization
-- DNS caching
-- TLS session reuse
-- Low latency socket operations
+Live Dashboard
 
----
+مراقبة لحظية لبيانات الـ $I/O$ والـ $RPS$.
 
-## 🔒 HTTPS / SSL Support
-- دعم HTTPS الكامل عبر OpenSSL
-- TLS Session Cache
-- SSL Handshake Optimization
-- Auto Retry Mode
+تحليل دقيق لاستجابة السيرفر وتحديد نقطة الانهيار ($Breaking$ $Point$).
 
----
+🛠️ التثبيت وبناء المشروع (Build Process)
 
-## 📊 Advanced Statistics
-يعرض النظام إحصائيات مباشرة مثل:
+للحصول على أقصى أداء، يجب تجميع الكود باستخدام خيارات التحسين القصوى للمترجم.
 
-- عدد الطلبات المرسلة
-- عدد الاستجابات الناجحة (2xx)
-- الأخطاء (4xx / 5xx)
-- الاتصالات النشطة
-- معدل الطلبات في الثانية
-- كمية البيانات المنقولة
+🐧 نظام Linux (الأداء الأفضل)
 
----
+# تثبيت المتطلبات
+sudo apt-get update && sudo apt-get install build-essential libssl-dev -y
 
-## 🧠 Smart Request Generation
-- Random User-Agent generation
-- Dynamic Referers
-- Randomized GET parameters
-- Multiple Accept headers
-- Header caching لتحسين الأداء
+# أمر التجميع الاحترافي (تفعيل التحسينات القصوى)
+g++ -O3 -march=native -flto -funroll-loops main.cpp -o flooder -lssl -lcrypto -lpthread
 
----
 
-## 🖥 Cross Platform
-يدعم:
+-O3: أعلى مستوى لتحسين الكود.
 
-| Platform | Status |
-|---|---|
-| Linux | ✅ |
-| Windows | ✅ |
-| macOS | ⚠️ Experimental |
+-march=native: تطويع الكود ليعمل بأقصى سرعة على معالجك الحالي تحديداً.
 
----
+📖 دليل الاستخدام المتقدم (Advanced Usage)
 
-# 🏗 Architecture
+./flooder <URL> <THREADS> <GET/POST> <TIME> <HEADERS_FILE>
 
-```text
-                ┌────────────────────┐
-                │   Main Controller   │
-                └─────────┬──────────┘
-                          │
-         ┌────────────────┼────────────────┐
-         │                │                │
-         ▼                ▼                ▼
- ┌────────────┐   ┌────────────┐   ┌────────────┐
- │ Worker #1  │   │ Worker #2  │   │ Worker #N  │
- └─────┬──────┘   └─────┬──────┘   └─────┬──────┘
-       │                │                │
-       ▼                ▼                ▼
- ┌────────────────────────────────────────────┐
- │ Persistent Keep-Alive Connections Pooling │
- └────────────────────────────────────────────┘
-```
 
----
+💡 أمثلة تطبيقية:
 
-# 📦 Requirements
+اختبار افتراضي (صفحة رئيسية):
+./flooder https://example.com/ 100 get 30 nil
 
-## Linux
+اختبار ثقيل (إرسال بيانات):
+./flooder https://example.com/api 500 post 60 headers.txt
 
-```bash
-sudo apt update
-sudo apt install g++ libssl-dev build-essential
-```
+🔥 أقوى أمر للتشغيل (The Power Command)
 
----
+إذا كنت تريد دفع الأداة إلى أقصى حدودها البرمجية (لأغراض الاختبار المعملي فقط)، استخدم هذه التوليفة:
 
-## Windows
+1. أولاً: تحسين حدود النظام (Linux):
 
-### باستخدام MinGW:
-- GCC 10+
-- OpenSSL
-- Winsock2
+ulimit -n 999999 # لرفع حد الملفات والاتصالات المفتوحة في النظام
 
----
 
-# 🔨 Compilation
+2. ثانياً: أمر التشغيل المدمر (The Beast Mode):
 
-## Linux
+./flooder https://target-site.com/ 1000 get 300 nil
 
-```bash
-g++ -O3 -std=c++17 flooder.cpp -o flooder -lssl -lcrypto -lpthread
-```
 
----
+لماذا هذا الأقوى؟ 1000 خيط معالجة مع $Keep-Alive$ فعال سيقوم بتوليد ضغط هائل يحاكي هجمات $DDoS$ من فئة $Application$ $Layer$ ($Layer$ $7$) بكفاءة تامة.
 
-## Windows (MinGW)
+🏗️ البنية الهندسية (Architecture)
 
-```bash
-g++ -O3 -std=c++17 flooder.cpp -o flooder.exe -lws2_32 -lssl -lcrypto
-```
+تعتمد الأداة على نظام Non-blocking Connection Pool:
 
----
+Thread Safety: استخدام std::atomic<uint64_t> لعدادات الطلبات لضمان عدم حدوث $Race$ $Condition$.
 
-# 🚀 Usage
+Memory Management: يتم تخصيص الذاكرة للرؤوس ($Headers$) مرة واحدة عند التشغيل لتجنب الـ $Memory$ $Fragmentation$.
 
-```bash
-./flooder <url> <threads> <get/post> <seconds> <header_file/nil>
-```
+⚠️ إخلاء مسؤولية (Legal Disclaimer)
+هذه الأداة مخصصة للأغراض التعليمية واختبار الاختراق الأخلاقي فقط. استخدامها ضد أهداف لا تملك إذناً صريحاً منها يعد جريمة معلوماتية. المطور غير مسؤول عن أي استخدام غير قانوني.
 
----
+👨‍💻 المساهمة (Contribution)
 
-# 📌 Example
-
-```bash
-./flooder https://example.com 200 get 60 nil
-```
-
----
-
-# ⚙ Parameters
-
-| Parameter | Description |
-|---|---|
-| `<url>` | Target URL |
-| `<threads>` | Number of worker threads |
-| `<get/post>` | Request method |
-| `<seconds>` | Test duration |
-| `<header_file/nil>` | Custom headers file |
-
----
-
-# 📈 Live Statistics Example
-
-```text
-[12s] Sent: 542100 (45175/s)
-OK: 531882 (44320/s)
-Failed: 10218
-Active: 200
-MB: 742
-```
-
----
-
-# 🧩 Core Optimizations
-
-## 🔥 Persistent Connections
-بدلاً من إنشاء اتصال جديد لكل طلب:
-- يتم إعادة استخدام نفس الاتصال لعشرات الآلاف من الطلبات.
-
----
-
-## ⚡ TLS Session Reuse
-تقليل تكلفة:
-- TLS Handshake
-- SSL Negotiation
-
----
-
-## 🧠 Header Pre-Caching
-يتم توليد:
-- User-Agent
-- Accept
-- Referer
-
-مسبقاً لتقليل الضغط على المعالج.
-
----
-
-## 📡 Real Response Validation
-يقوم النظام بقراءة:
-- HTTP Status Code
-- Headers
-
-للتأكد من نجاح الاتصال فعلياً.
-
----
-
-# 📂 Project Structure
-
-```text
-project/
-│
-├── flooder.cpp
-├── README.md
-└── headers.txt
-```
-
----
-
-# 🔐 Security Notice
-
-> هذا المشروع مخصص حصرياً لاختبارات الضغط والأبحاث الأمنية والاختبارات المخبرية المصرح بها فقط.
-
-أي استخدام غير قانوني أو ضد أنظمة بدون تصريح يعتبر مسؤولية المستخدم بالكامل.
-
----
-
-# 🛠 Recommended Build Flags
-
-```bash
--O3
--march=native
--flto
--pthread
-```
-
----
-
-# 📚 Technologies Used
-
-| Technology | Purpose |
-|---|---|
-| C++17 | Core Engine |
-| OpenSSL | HTTPS/TLS |
-| POSIX Threads | Multi-threading |
-| Winsock2 | Windows Networking |
-
----
-
-# 🧪 Performance Notes
-
-يعتمد الأداء على:
-- سرعة الشبكة
-- عدد الأنوية
-- جودة السيرفر المستهدف
-- Limits الخاصة بالنظام
-- File Descriptor Limits
-
----
-
-# ⚙ Suggested System Tuning (Linux)
-
-```bash
-ulimit -n 1048576
-sysctl -w net.ipv4.ip_local_port_range="1024 65535"
-sysctl -w net.ipv4.tcp_fin_timeout=15
-```
-
----
-
-# 🖼 Preview
-
-```text
-███████╗██╗      ██████╗  ██████╗ ██████╗ ███████╗██████╗
-██╔════╝██║     ██╔═══██╗██╔═══██╗██╔══██╗██╔════╝██╔══██╗
-█████╗  ██║     ██║   ██║██║   ██║██████╔╝█████╗  ██████╔╝
-██╔══╝  ██║     ██║   ██║██║   ██║██╔═══╝ ██╔══╝  ██╔══██╗
-██║     ███████╗╚██████╔╝╚██████╔╝██║     ███████╗██║  ██║
-╚═╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═╝
-```
-
----
-
-# 📄 License
-
-```text
-MIT License
-```
-
----
-
-# 🤝 Contribution
-
-أي تحسينات أو Pull Requests مرحب بها.
-
----
-
-# ⭐ Credits
-
-Developed with ❤️ using Modern C++ & OpenSSL.
-
----
-
-<div align="center">
-
-### ⚡ Advanced HTTP Flooder V2
-#### Optimized Networking Engine
-
-</div>
-````
+نطمح لدعم $HTTP/2$ و $QUIC$ في الإصدارات القادمة. بادر بإرسال Pull Request!
