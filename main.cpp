@@ -18,6 +18,7 @@
 #include <iomanip>
 
 // Network
+// بعد includes الـ Network
 #ifdef _WIN32
     #include <winsock2.h>
     #include <ws2tcpip.h>
@@ -32,6 +33,7 @@
     #include <netdb.h>
     #include <fcntl.h>
     #include <errno.h>
+    #include <netinet/tcp.h>     // ←←← أضف هذا السطر
     #define CLOSE_SOCKET close
     #define SOCKET_ERROR -1
     typedef int socket_t;
@@ -321,12 +323,19 @@ socket_t HTTPFlooder::createSocket() {
     socket_t s = socket(AF_INET, SOCK_STREAM, 0);
     if (s == SOCKET_ERROR) return s;
 
+    // TCP_NODELAY - مهم جداً للـ flooding
     int opt = 1;
     setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
 
-    timeval tv{CONNECTION_TIMEOUT_SEC, 0};
+    // إعداد Timeout
+    timeval tv = {CONNECTION_TIMEOUT_SEC, 0};
     setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
     setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, (char*)&tv, sizeof(tv));
+
+    // زيادة حجم الـ Buffer (اختياري لكن مفيد)
+    int bufsize = 65536;
+    setsockopt(s, SOL_SOCKET, SO_SNDBUF, (char*)&bufsize, sizeof(bufsize));
+    setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char*)&bufsize, sizeof(bufsize));
 
     return s;
 }
