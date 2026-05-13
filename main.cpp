@@ -336,10 +336,11 @@ private:
         std::uniform_int_distribution<> cacheDist(0, 499);
         
         if (mode == "get") {
-            std::string randParam = alphanum[std::uniform_int_distribution<>(0, alphanum.size()-1)(gen)]
-                                    + alphanum[std::uniform_int_distribution<>(0, alphanum.size()-1)(gen)]
-                                    + alphanum[std::uniform_int_distribution<>(0, alphanum.size()-1)(gen)]
-                                    + alphanum[std::uniform_int_distribution<>(0, alphanum.size()-1)(gen)];
+            std::string randParam;
+            randParam += alphanum[std::uniform_int_distribution<>(0, alphanum.size()-1)(gen)];
+            randParam += alphanum[std::uniform_int_distribution<>(0, alphanum.size()-1)(gen)];
+            randParam += alphanum[std::uniform_int_distribution<>(0, alphanum.size()-1)(gen)];
+            randParam += alphanum[std::uniform_int_distribution<>(0, alphanum.size()-1)(gen)];
             
             request << "GET " << page << key << randParam << "=" << std::uniform_int_distribution<>(0, 99999999)(gen) << " HTTP/1.1\r\n";
             request << "Host: " << host << "\r\n";
