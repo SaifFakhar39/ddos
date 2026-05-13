@@ -1,61 +1,112 @@
-<h1 align="center">🔥 HTTP Flooder V2</h1>
-<p align="center">
-  <b>C++ High-Performance HTTP/HTTPS Stress Testing Tool</b><br>
-  <i>Optimized for authorized penetration testing and security assessments</i>
-</p>
+🚀 Advanced HTTP Flooder - Optimized V2 🛡️
 
-<p align="center">
-  <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg?style=for-the-badge&logo=c%2B%2B">
-  <img src="https://img.shields.io/badge/OpenSSL-3.x-red.svg?style=for-the-badge&logo=openssl">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Threads-Multi--Threaded-orange.svg?style=for-the-badge">
-</p>
+أداة احترافية مكتوبة بلغة ++C لاختبار تحمل المواقع والشبكات (Stress Testing) بأداء عالٍ وتقنيات متقدمة.
 
----
+هذا الإصدار (V2) هو تطوير جذري يهدف إلى الوصول لأقصى عدد من الطلبات في الثانية (RPS) مع استهلاك أقل قدر ممكن من موارد المعالج والذاكرة، من خلال تقليل الـ Overhead الناتج عن إنشاء الاتصالات المتكررة.
 
-## 📋 Table of Contents
+💎 المميزات الرئيسية (Key Features)
 
-- [Overview](#-overview)
-- [Features](#-features)
-- [Architecture](#-architecture)
-- [Requirements](#-requirements)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Parameters](#-parameters)
-- [Examples](#-examples)
-- [Performance](#-performance)
-- [Comparison: V1 vs V2](#-comparison-v1-vs-v2)
-- [Build Options](#-build-options)
-- [Troubleshooting](#-troubleshooting)
-- [Important Notice](#-important-notice)
-- [License](#-license)
+⚡ أداء خارق (Ultra High RPS): استخدام تقنية Keep-Alive الحقيقية لإرسال آلاف الطلبات عبر اتصال TCP واحد، مما يقلل من عبء المصافحة (Handshake).
 
----
+🔐 تحسين التشفير (TLS Session Reuse): دعم كامل لبروتوكول HTTPS مع إعادة استخدام جلسات SSL/TLS لتقليل التأخير الناتج عن التشفير.
 
-## 📌 Overview
+📊 تحليل الاستجابة (Smart Response Tracking): الأداة لا ترسل فقط، بل تقرأ الـ HTTP Response للتأكد من نجاح الطلبات (2xx) أو فشلها (4xx/5xx).
 
-**HTTP Flooder V2** is a high-performance, multi-threaded stress testing tool written in **C++17**. It is designed to simulate heavy HTTP/HTTPS traffic against web servers for **authorized** penetration testing and security assessments.
+🎲 رأسيات عشوائية (Dynamic Headers): توليد تلقائي للـ User-Agents و Referers بشكل مسبق (Caching) لتجنب الحسابات الثقيلة أثناء الهجوم.
 
-The V2 release introduces significant performance optimizations over V1, including persistent Keep-Alive connections, DNS caching, TLS session reuse, pre-generated header randomization, and real HTTP response parsing for accurate statistics.
+🌍 توافق كامل (Cross-Platform): تعمل الأداة بسلاسة على أنظمة Linux و Windows (دعم Winsock و POSIX).
 
----
+📈 إحصائيات حية (Live Dashboard): واجهة سطر أوامر ملونة تعرض (عدد الطلبات، النجاح، الفشل، حجم البيانات المرسلة MB، والـ RPS الحالي).
 
-## 🚀 Features
+🛠️ المتطلبات التقنية (Prerequisites)
 
-| Feature | Details |
-|---------|---------|
-| **Protocols** | HTTP / HTTPS (with OpenSSL) |
-| **Methods** | GET (with cache-busting params) / POST |
-| **Concurrency** | Multi-threaded (user-defined thread count) |
-| **Keep-Alive** | Up to **50,000 requests per connection** |
-| **DNS Caching** | Resolved once at startup, reused across all threads |
-| **TLS Session Reuse** | Single SSL context + session caching for minimal handshake overhead |
-| **Header Randomization** | Pre-generated cache of **500 unique User-Agents, Referers, Accept headers** |
-| **Accurate Statistics** | Parses HTTP response codes — only **2xx** counts as success |
-| **Real-time Monitoring** | Requests/sec, success rate, failures, bandwidth, active connections |
-| **Custom Headers** | Load custom HTTP headers from file |
-| **Cross-Platform** | Linux, macOS, Windows (via WinSock2) |
+تحتاج إلى المكتبات التالية لتشغيل الأداة:
 
----
+OpenSSL Library: للتعامل مع اتصالات HTTPS المشفرة.
 
-## 🏗 Architecture
+g++ / MSVC: مترجم يدعم معايير C++11 أو أحدث.
+
+Threads: دعم خيوط المعالجة المتعددة.
+
+🚀 التثبيت والتشغيل (Installation & Build)
+
+🐧 على نظام Linux (Ubuntu/Debian)
+
+# تثبيت المكتبات اللازمة
+sudo apt-get update
+sudo apt-get install build-essential libssl-dev
+
+# تجميع الكود
+g++ -O3 main.cpp -o flooder -lssl -lcrypto -lpthread
+
+# التشغيل
+./flooder <url> <threads> <mode> <duration> <header_file>
+
+
+🪟 على نظام Windows
+
+قم بتثبيت OpenSSL لـ Windows.
+
+استخدم MinGW أو Visual Studio.
+
+اربط المكتبات التالية: -lws2_32 -lssl -lcrypto.
+
+📖 دليل الاستخدام (Usage Guide)
+
+./flooder <URL> <THREADS> <GET/POST> <TIME> <HEADERS>
+
+
+المعامل
+
+الوصف
+
+مثال
+
+URL
+
+الرابط المستهدف (HTTP/HTTPS)
+
+https://target.com/
+
+THREADS
+
+عدد الخيوط (التوازي)
+
+500
+
+MODE
+
+نوع الطلب (get أو post)
+
+get
+
+TIME
+
+مدة الاختبار بالثواني
+
+60
+
+HEADERS
+
+مسار ملف headers مخصص أو nil
+
+nil
+
+مثال تطبيقي:
+
+./flooder https://example.com/ 200 get 60 nil
+
+
+🏗️ البنية الهندسية (Architecture)
+
+يعتمد الكود على توزيع المهام عبر floodWorker حيث يتم تخصيص ConnectionPool لكل خيط لضمان عدم حدوث تصادم في الذاكرة (Thread-Safe). يتم استخدام std::atomic لضمان دقة الإحصائيات في بيئة متعددة الخيوط دون التضحية بالسرعة.
+
+⚠️ إخلاء مسؤولية (Legal Disclaimer)
+
+هذه الأداة مخصصة للأغراض التعليمية واختبار الاختراق الأخلاقي فقط.
+استخدام هذه الأداة ضد أهداف دون إذن صريح مسبق يعتبر عملاً غير قانوني. المطور غير مسؤول عن أي سوء استخدام أو أضرار ناتجة عن هذه الأداة. استخدمها بمسؤولية لدعم أمنك السيبراني وتطوير مهاراتك البرمجية.
+
+👨‍💻 المساهمة (Contribution)
+
+إذا كان لديك اقتراحات لتحسين الكود أو إضافة مميزات جديدة (مثل دعم HTTP/2)، فلا تتردد في فتح Issue أو إرسال Pull Request.
+
